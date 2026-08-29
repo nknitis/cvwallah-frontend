@@ -6,6 +6,7 @@ import TailorCvModal from "../ai/TailorCvModal.jsx";
 import EducationForm from "../forms/EducationForm.jsx";
 import ExperienceForm from "../forms/ExperienceForm.jsx";
 import PersonalForm from "../forms/PersonalForm.jsx";
+import ResumeImportPanel from "../forms/ResumeImportPanel.jsx";
 import SkillsProjectsForm from "../forms/SkillsProjectsForm.jsx";
 import CVPreview from "../preview/CVPreview.jsx";
 import SidebarTabs from "./SidebarTabs.jsx";
@@ -51,6 +52,7 @@ const SplitScreenLayout = () => {
           </div>
 
           <div className="space-y-5 px-5 py-5">
+            <ResumeImportPanel />
             {forms[activeStep]}
             <div className="grid gap-4">
               <AtsScorePanel />

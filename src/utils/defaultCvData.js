@@ -27,7 +27,9 @@ export const defaultCvData = {
     {
       title: "",
       description: "",
-      techStack: []
+      techStack: [],
+      link: ""
     }
-  ]
+  ],
+  customSections: []
 };

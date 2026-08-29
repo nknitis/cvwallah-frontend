@@ -24,9 +24,40 @@ const PreviewSection = ({ title, children }) => {
   );
 };
 
+const hasText = (value) => String(value || "").trim().length > 0;
+
+const hasFilledValues = (values) => {
+  return values.some((value) => {
+    if (Array.isArray(value)) {
+      return value.some(hasText);
+    }
+
+    return hasText(value);
+  });
+};
+
 const PrintableCV = forwardRef((_, ref) => {
   const { cvData } = useCV();
   const { personal, education, experience, skills, projects } = cvData;
+
+  const visibleEducation = education.filter((item) =>
+    hasFilledValues([item.degree, item.school, item.year, item.grades])
+  );
+  const visibleExperience = experience.filter((item) =>
+    hasFilledValues([item.role, item.company, item.duration, item.description])
+  );
+  const visibleSkills = skills.filter(hasText);
+  const visibleProjects = projects.filter((project) => {
+    return hasFilledValues([
+      project.title,
+      project.description,
+      project.link,
+      project.techStack
+    ]);
+  });
+  const visibleCustomSections = (cvData.customSections || []).filter((section) =>
+    hasFilledValues([section.title, section.content])
+  );
 
   return (
     <article
@@ -45,72 +76,110 @@ const PrintableCV = forwardRef((_, ref) => {
         </div>
       </header>
 
-      <PreviewSection title="Education">
-        <div className="space-y-3">
-          {education.map((item, index) => (
-            <div key={index} className="grid gap-0.5">
-              <div className="flex items-start justify-between gap-5">
-                <p className="font-semibold">{item.degree || "Degree"}</p>
-                <p className="shrink-0 text-sm text-slate-500">{item.year || "Year"}</p>
-              </div>
-              <p className="text-sm text-slate-700">{item.school || "School / College"}</p>
-              {item.grades ? <p className="text-sm text-slate-600">{item.grades}</p> : null}
-            </div>
-          ))}
-        </div>
-      </PreviewSection>
-
-      <PreviewSection title="Experience">
-        <div className="space-y-4">
-          {experience.map((item, index) => (
-            <div key={index}>
-              <div className="flex items-start justify-between gap-5">
-                <div>
-                  <p className="font-semibold">{item.role || "Role"}</p>
-                  <p className="text-sm text-slate-700">{item.company || "Company"}</p>
+      {visibleEducation.length ? (
+        <PreviewSection title="Education">
+          <div className="space-y-3">
+            {visibleEducation.map((item, index) => (
+              <div key={index} className="grid gap-0.5">
+                <div className="flex items-start justify-between gap-5">
+                  {item.degree ? <p className="font-semibold">{item.degree}</p> : null}
+                  {item.year ? (
+                    <p className="shrink-0 text-sm text-slate-500">{item.year}</p>
+                  ) : null}
                 </div>
-                <p className="shrink-0 text-sm text-slate-500">
-                  {item.duration || "Duration"}
-                </p>
+                {item.school ? (
+                  <p className="text-sm text-slate-700">{item.school}</p>
+                ) : null}
+                {item.grades ? <p className="text-sm text-slate-600">{item.grades}</p> : null}
               </div>
-              <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
-                {item.description || "Describe your responsibilities, results, and impact."}
-              </p>
-            </div>
-          ))}
-        </div>
-      </PreviewSection>
+            ))}
+          </div>
+        </PreviewSection>
+      ) : null}
 
-      <PreviewSection title="Skills">
-        <div className="flex flex-wrap gap-2">
-          {(skills.length ? skills : ["React", "Node.js", "MongoDB"]).map((skill) => (
-            <span
-              key={skill}
-              className="rounded border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </PreviewSection>
+      {visibleExperience.length ? (
+        <PreviewSection title="Experience">
+          <div className="space-y-4">
+            {visibleExperience.map((item, index) => (
+              <div key={index}>
+                <div className="flex items-start justify-between gap-5">
+                  <div>
+                    {item.role ? <p className="font-semibold">{item.role}</p> : null}
+                    {item.company ? (
+                      <p className="text-sm text-slate-700">{item.company}</p>
+                    ) : null}
+                  </div>
+                  {item.duration ? (
+                    <p className="shrink-0 text-sm text-slate-500">{item.duration}</p>
+                  ) : null}
+                </div>
+                {item.description ? (
+                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">
+                    {item.description}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </PreviewSection>
+      ) : null}
 
-      <PreviewSection title="Projects">
-        <div className="space-y-4">
-          {projects.map((project, index) => (
-            <div key={index}>
-              <p className="font-semibold">{project.title || "Project Title"}</p>
-              <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
-                {project.description || "Project description and measurable outcome."}
-              </p>
-              {project.techStack.length ? (
-                <p className="mt-1 text-xs font-medium text-slate-500">
-                  Tech: {project.techStack.join(", ")}
-                </p>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </PreviewSection>
+      {visibleSkills.length ? (
+        <PreviewSection title="Skills">
+          <div className="flex flex-wrap gap-2">
+            {visibleSkills.map((skill) => (
+              <span
+                key={skill}
+                className="rounded border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </PreviewSection>
+      ) : null}
+
+      {visibleProjects.length ? (
+        <PreviewSection title="Projects">
+          <div className="space-y-4">
+            {visibleProjects.map((project, index) => (
+              <div key={index}>
+                {project.title ? <p className="font-semibold">{project.title}</p> : null}
+                {project.description ? (
+                  <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
+                    {project.description}
+                  </p>
+                ) : null}
+                {project.link ? (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block text-xs font-medium text-slate-600 underline"
+                  >
+                    {project.link}
+                  </a>
+                ) : null}
+                {project.techStack.length ? (
+                  <p className="mt-1 text-xs font-medium text-slate-500">
+                    Tech: {project.techStack.join(", ")}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </PreviewSection>
+      ) : null}
+
+      {visibleCustomSections.map((section, index) => (
+        <PreviewSection key={index} title={section.title?.trim() || `Custom Section ${index + 1}`}>
+          {section.content ? (
+            <p className="whitespace-pre-line text-sm leading-6 text-slate-700">
+              {section.content}
+            </p>
+          ) : null}
+        </PreviewSection>
+      ))}
     </article>
   );
 });
