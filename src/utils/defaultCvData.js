@@ -24,8 +24,8 @@ export const defaultCvData = {
   ],
   skills: [],
   projects: [
-    {
-      title: "",
+    {   
+       title: "",
       description: "",
       techStack: [],
       link: ""
