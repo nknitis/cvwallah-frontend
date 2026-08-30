@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://cvwallah-backend.onrender.com/api";
 
 const postJson = async (endpoint, body) => {
   const response = await fetch(`${API_URL}${endpoint}`, {
